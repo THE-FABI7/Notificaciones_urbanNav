@@ -4,7 +4,7 @@ Microservicio de notificaciones para la aplicación web de servicios de transpor
 
 ## Requisitos Previos
 
-- [.NET Core SDK](https://dotnet.microsoft.com/download/dotnet-core) instalado en tu máquina (se recomienda la versión X.X.X).
+- [.NET Core SDK](https://dotnet.microsoft.com/download/dotnet-core) instalado en tu máquina (se recomienda la versión 6.0).
 
 ## Configuración
 
