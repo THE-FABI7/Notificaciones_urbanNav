@@ -85,42 +85,9 @@ public class NotificacionesController : ControllerBase
         }
         else
         {
-            return BadRequest("Correo  sent failed" + datos.correoDestino);
+            return BadRequest("Correo  sent failed: " + datos.correoDestino);
         }
     }
-
-[Route("asignar-solicitud")]
-[HttpPost]
-public async Task<ActionResult> EnviarCorreoAsignacionSolicitud(ModeloAsignacionSolicitud datos)
-{
-    // Obtener los datos necesarios para enviar el correo
-    var apiKey = Environment.GetEnvironmentVariable("SEND_API_KEY");
-    var templateId = Environment.GetEnvironmentVariable("ASIGNACION_SOLICITUD_SENDGRID_TEMPLATE_ID");
-    var from = new EmailAddress("correo@dominio.com", "Nombre del remitente");
-    var to = new EmailAddress(datos.CorreoAsesor, datos.NombreAsesor);
-
-    // Crear el mensaje base
-    SendGridMessage msg = MailHelper.CreateSingleTemplateEmail(from, to, templateId, new
-    {
-        nombreUsuario = datos.NombreUsuario,
-        nombreAsesor = datos.NombreAsesor,
-        idSolicitud = datos.IdSolicitud
-    });
-
-    // Configurar el cliente de SendGrid y enviar el correo
-    var client = new SendGridClient(apiKey);
-    var response = await client.SendEmailAsync(msg);
-
-    // Devolver una respuesta adecuada según el resultado del envío del correo
-    if (response.StatusCode == System.Net.HttpStatusCode.Accepted)
-    {
-        return Ok("Correo enviado a " + datos.CorreoAsesor);
-    }
-    else
-    {
-        return BadRequest("Error enviando correo a " + datos.CorreoAsesor);
-    }
-}
 
     [Route("enviar-correo-2fa")]
     [HttpPost]
@@ -167,7 +134,7 @@ public async Task<ActionResult> EnviarCorreoAsignacionSolicitud(ModeloAsignacion
         }
 
         var client = new SendGridClient(apiKey);
-        var from = new EmailAddress("jesus.1701912773@ucaldas.edu.co", "jesus salazar");
+        var from = new EmailAddress("jonathan.cadena28906@ucaldas.edu.co", "Equipo URBANNAV");
         var subject = datos.asuntoCorreo;
         var to = new EmailAddress(datos.correoDestino, datos.nombreDestino);
         var plainTextContent = "plain text content";
