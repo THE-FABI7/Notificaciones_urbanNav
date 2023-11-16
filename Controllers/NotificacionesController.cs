@@ -55,6 +55,45 @@ public class NotificacionesController : ControllerBase
         }
     }
 
+    [Route("correo-facturacion")]
+    [HttpPost]
+    /// <summary>Sends a welcome email to a recipient using SendGrid.</summary>
+    /// <param name="datos">The data needed to send the email.</param>
+    /// <returns>An ActionResult indicating whether the email was sent successfully or not.</returns>
+    /// <remarks>
+    /// This method uses SendGrid to send a welcome email to a recipient. It retrieves the SendGrid API key and the ID of the
+    /// SendGrid template to use from environment variables. It then creates a SendGridMessage object and sets its template ID
+    /// to the retrieved ID. It then sends the email using the SendGridClient object and the SendEmailAsync method. If the email
+    /// is sent successfully, it returns an Ok ActionResult with a message indicating the
+    public async Task<ActionResult> EnviarCorreoFacturacion(ModeloCorreo datos)
+    {
+        SendGridMessage msg = this.crearMensajeBase(datos);
+        var apiKey = Environment.GetEnvironmentVariable("SEND_API_KEY");
+        var client = new SendGridClient(apiKey);
+        //var templateId = Environment.GetEnvironmentVariable("FACTURACION_SENDGRID_TEMPLATE_ID");
+
+        var templateId = "d-c79ec7cce1b34250b4df96b07565954d";
+
+        msg.SetTemplateId(templateId);
+        var response = await client.SendEmailAsync(msg);
+        msg.SetTemplateData(new
+        {
+            nombre = datos.nombreDestino,
+            mensaje = datos.contenidoCorreo,
+            //asunto = datos.asuntoCorreo,
+            id = datos.Viajeid,
+        });
+        if (response.StatusCode == System.Net.HttpStatusCode.Accepted)
+        {
+            return Ok("Correo sent successfully to: " + datos.correoDestino);
+
+        }
+        else
+        {
+            return BadRequest("Correo  sent failed" + datos.correoDestino);
+        }
+    }
+
     [Route("correo-recuperacion-clave")]
     [HttpPost]
     /// <summary>Sends a password recovery email to the specified email address.</summary>
@@ -103,6 +142,37 @@ public class NotificacionesController : ControllerBase
 
         SendGridMessage msg = this.crearMensajeBase(datos);
         msg.SetTemplateId(Environment.GetEnvironmentVariable("TwoFA_SENDGRID_TEMPLATE_ID"));
+        msg.SetTemplateData(new
+        {
+            nombre = datos.nombreDestino,
+            mensaje = datos.contenidoCorreo,
+            asunto = datos.asuntoCorreo
+        });
+        var response = await client.SendEmailAsync(msg);
+        if (response.StatusCode == System.Net.HttpStatusCode.Accepted)
+        {
+            return Ok("Correo enviado a la dirección " + datos.correoDestino);
+        }
+        else
+        {
+            return BadRequest("Error enviando el mensaje a la dirección: " + datos.correoDestino);
+        }
+    }
+
+    [Route("hash-validacion-usuario")]
+    [HttpPost]
+    /// <summary>Sends a two-factor authentication email to the specified recipient.</summary>
+    /// <param name="datos">The email data, including recipient name, email address, subject, and message content.</param>
+    /// <returns>An ActionResult indicating whether the email was successfully sent or not.</returns>
+    /// <exception cref="System.ArgumentNullException">Thrown when the apiKey or templateId environment variables are null.</exception>
+    public async Task<ActionResult> EnviarHashValidacionUsuario(ModeloCorreo datos)
+    {
+        var apiKey = Environment.GetEnvironmentVariable("SEND_API_KEY");
+        var templateId = Environment.GetEnvironmentVariable("HASH_SENDGRID_TEMPLATE_ID");
+        var client = new SendGridClient(apiKey);
+
+        SendGridMessage msg = this.crearMensajeBase(datos);
+        msg.SetTemplateId("d-1b68b49ac95a458db871b01cb92e472b");
         msg.SetTemplateData(new
         {
             nombre = datos.nombreDestino,

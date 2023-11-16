@@ -1,3 +1,6 @@
+using Microsoft.OpenApi.Any;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
 /// <summary>Represents a model for an email message.</summary>
 namespace Notificaciones.Models
 {
@@ -11,5 +14,7 @@ namespace Notificaciones.Models
         public string? asuntoCorreo { set; get; }
         /// <summary>The content of the email message.</summary>
         public string? contenidoCorreo { set; get; }
+        public string? Viajeid { set; get; }
+
     }
 }
